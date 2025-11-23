@@ -18,12 +18,13 @@ model User {
   create_at DateTime @default(now())
   updated_at DateTime @updatedAt
   email     String   @unique
-  auth_provider AuthProvider
+  auth_provider AuthProvider[]
   clerk_customer_id String? @unique
   name      String?
   role      Role     @default(USER)
   stripe_customer_id String?
   phone_number String?
+  avatar_url String?
 
   wishlist   Wishlist[]
   orders     OrderDetails[]
