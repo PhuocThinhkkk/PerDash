@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { SignIn as ClerkSignInForm } from '@clerk/nextjs';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import SaveUserToDB from '@/components/save-user-to-db';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -25,8 +26,7 @@ export default function SignInViewPage() {
         <div className='absolute inset-0 bg-zinc-900' />
         <div className='relative z-20 mt-auto'>
           <blockquote className='space-y-2'>
-            <p className='text-lg'>
-            </p>
+            <p className='text-lg'></p>
           </blockquote>
         </div>
       </div>
@@ -39,6 +39,7 @@ export default function SignInViewPage() {
           />
         </div>
       </div>
+      <SaveUserToDB />
     </div>
   );
 }
