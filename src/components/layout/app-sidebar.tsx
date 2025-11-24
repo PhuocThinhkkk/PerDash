@@ -178,10 +178,12 @@ export default function AppSidebar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <IconLogout className='mr-2 h-4 w-4' />
-                  <SignOutButton redirectUrl='/auth/sign-in' />
-                </DropdownMenuItem>
+                <SignOutButton redirectUrl='/auth/sign-in'>
+                  <DropdownMenuItem className='flex cursor-pointer items-center'>
+                    <IconLogout className='mr-2 h-4 w-4' />
+                    Sign Out
+                  </DropdownMenuItem>
+                </SignOutButton>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
