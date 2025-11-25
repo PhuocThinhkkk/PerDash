@@ -1,7 +1,7 @@
 import db from '@/lib/db';
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
-export async function getOrderOverview() {
+export async function getOrdersOverview() {
   const now = new Date();
 
   const thisMonthStart = startOfMonth(now);

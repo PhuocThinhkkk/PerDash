@@ -1,4 +1,5 @@
 import db from '@/lib/db';
+import { RevenueDailyData } from '@/types/revenue';
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
 export async function getRevenueOverview() {
@@ -44,24 +45,36 @@ export async function getRevenueOverview() {
   };
 }
 
-import { subDays, startOfDay } from 'date-fns';
+import { startOfDay, subDays, addDays, format } from 'date-fns';
 
-export async function getDailyRevenue(days = 90) {
+export async function getDailyRevenue(days = 90): Promise<RevenueDailyData[]> {
   const startDate = startOfDay(subDays(new Date(), days));
+  const endDate = startOfDay(new Date());
 
-  // Raw SQL because prisma groupBy cannot truncate date
+  // Raw SQL query for payments
   const result = await db.$queryRaw<{ date: Date; money: number }[]>`
     SELECT
-      date_trunc('day', "create_at") AS date,
+      date_trunc('day', "created_at") AS date,
       SUM(amount) AS money
     FROM "PaymentDetails"
-    WHERE "create_at" >= ${startDate}
+    WHERE "created_at" >= ${startDate}
     GROUP BY date
     ORDER BY date ASC
   `;
 
-  return result.map((row) => ({
-    date: row.date.toISOString().split('T')[0], // YYYY-MM-DD
-    money: Number(row.money)
-  }));
+  const moneyMap = new Map(
+    result.map((r) => [r.date.toISOString().split('T')[0], Number(r.money)])
+  );
+
+  const dailyRevenue: RevenueDailyData[] = [];
+  for (let i = 0; i <= days; i++) {
+    let randomData = Math.floor(Math.random() * 5000); // Remove this line in production
+    const date = format(addDays(startDate, i), 'yyyy-MM-dd');
+    dailyRevenue.push({
+      date,
+      money: moneyMap.get(date) ?? randomData // Use randomData for mock data; replace with 0 in production,
+    });
+  }
+
+  return dailyRevenue;
 }
