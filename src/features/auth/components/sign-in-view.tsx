@@ -1,14 +1,9 @@
+'use client';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SignIn as ClerkSignInForm } from '@clerk/nextjs';
-import { Metadata } from 'next';
 import Link from 'next/link';
 import SaveUserToDB from '@/components/save-user-to-db';
-
-export const metadata: Metadata = {
-  title: 'Authentication',
-  description: 'Authentication forms'
-};
 
 export default function SignInViewPage() {
   return (

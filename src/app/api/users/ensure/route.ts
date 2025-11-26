@@ -1,30 +1,50 @@
-import { currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import db from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { AuthProvider } from 'generated/prisma/enums';
+import { AuthProvider } from '@prisma/client';
 
 export async function GET(req: Request) {
-  const clerkUser = await currentUser();
-  if (!clerkUser)
-    return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+  try {
+    const clerkUserId = (await auth()).userId;
+    if (!clerkUserId) {
+      console.log('clerk auth: ', await auth());
+      return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    }
 
-  const user = await db.user.findUnique({
-    where: { clerk_customer_id: clerkUser.id }
-  });
+    const user = await db.user.findUnique({
+      where: { clerk_customer_id: clerkUserId }
+    });
 
-  if (!user) {
-    console.log('okay I fucked up');
-    return NextResponse.json({ error: 'Server fucked up' }, { status: 500 });
+    if (!user) {
+      console.log('okay I fucked up');
+      return NextResponse.json(
+        { message: 'Server fucked up' },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ user });
+  } catch (e) {
+    console.error('Server error: ', e);
+    return NextResponse.json(
+      { message: 'There is something wrong with server' },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ user });
 }
 
 export async function POST() {
   try {
+    const clerkUserId = (await auth()).userId;
+    console.log('clerk auth: ', await auth());
+    if (!clerkUserId) {
+      return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    }
+
     const clerkUser = await currentUser();
-    if (!clerkUser)
-      return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+    if (!clerkUser) {
+      console.log('current User: ', clerkUser);
+      return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    }
 
     let provider: AuthProvider = 'EMAIL';
     if (clerkUser.publicMetadata?.oauthProvider === 'google') {
@@ -62,14 +82,14 @@ export async function POST() {
     return NextResponse.json({ user });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
   const clerkUser = await currentUser();
   if (!clerkUser)
-    return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+    return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
 
   const body = await req.json();
   const updatedUser = await db.user.update({
@@ -85,7 +105,7 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   const clerkUser = await currentUser();
   if (!clerkUser)
-    return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+    return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
 
   await db.user.delete({
     where: { clerk_customer_id: clerkUser.id }
