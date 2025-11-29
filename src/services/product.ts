@@ -78,3 +78,56 @@ export async function getProductByIdTyped(productId: number) {
     }
   });
 }
+
+export type FilterProductType = {
+  page?: number;
+  pageSize?: number;
+};
+
+export type ProductWithCategory = Prisma.ProductGetPayload<{
+  include: {
+    category: true;
+    skus: true;
+  };
+}>;
+
+export async function getProductsByFilter(
+  filter: FilterProductType
+): Promise<ProductWithCategory[]> {
+  const page = filter.page ? filter.page : 1;
+  const pageSize = filter.pageSize ? filter.pageSize : 10;
+
+  const items = await db.product.findMany({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    where: {
+      name: {
+        contains: '', // or equals
+        mode: 'insensitive'
+      },
+      category: {
+        name: {
+          contains: ''
+        }
+      },
+      skus: {
+        some: {
+          price: {
+            lte: 100 // less than or equal
+          }
+        }
+      }
+    },
+    include: {
+      category: true,
+      skus: true
+    },
+    orderBy: { id: 'asc' }
+  });
+  return items;
+}
+
+export async function getTotalProductsNumber() {
+  const totalItems = await db.product.count();
+  return totalItems;
+}

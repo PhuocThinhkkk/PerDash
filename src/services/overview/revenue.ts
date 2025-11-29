@@ -68,11 +68,10 @@ export async function getDailyRevenue(days = 90): Promise<RevenueDailyData[]> {
 
   const dailyRevenue: RevenueDailyData[] = [];
   for (let i = 0; i <= days; i++) {
-    let randomData = Math.floor(Math.random() * 5000); // Remove this line in production
     const date = format(addDays(startDate, i), 'yyyy-MM-dd');
     dailyRevenue.push({
       date,
-      money: moneyMap.get(date) ?? randomData // Use randomData for mock data; replace with 0 in production,
+      money: moneyMap.get(date) ?? 0
     });
   }
 
