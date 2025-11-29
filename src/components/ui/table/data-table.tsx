@@ -1,7 +1,4 @@
-import { type Table as TanstackTable, flexRender } from '@tanstack/react-table';
 import type * as React from 'react';
-
-import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import {
   Table,
   TableBody,
@@ -10,17 +7,22 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { getCommonPinningStyles } from '@/lib/data-table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { columns } from '@/features/products/components/product-tables/columns';
+import { PageTableFilterData, PageTableOnEvent } from '@/types/data-table';
+import { DataTablePagination } from './data-table-pagination';
 
-interface DataTableProps<TData> extends React.ComponentProps<'div'> {
-  table: TanstackTable<TData>;
-  actionBar?: React.ReactNode;
+interface DataTableProps<T> {
+  pageData: PageTableFilterData;
+  data: T[];
+  pageEvent: PageTableOnEvent;
+  children?: React.ReactNode;
 }
 
 export function DataTable<TData>({
-  table,
-  actionBar,
+  pageData,
+  data,
+  pageEvent,
   children
 }: DataTableProps<TData>) {
   return (
@@ -31,45 +33,19 @@ export function DataTable<TData>({
           <ScrollArea className='h-full w-full'>
             <Table>
               <TableHeader className='bg-muted sticky top-0 z-10'>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        colSpan={header.colSpan}
-                        style={{
-                          ...getCommonPinningStyles({ column: header.column })
-                        }}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
+                <TableRow>
+                  {columns.map((col) => (
+                    <TableHead key={String(col.key)}>{col.header}</TableHead>
+                  ))}
+                </TableRow>
               </TableHeader>
               <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell
-                          key={cell.id}
-                          style={{
-                            ...getCommonPinningStyles({ column: cell.column })
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                {data.length ? (
+                  data.map((row, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      {columns.map((col) => (
+                        <TableCell key={String(col.key)}>
+                          {col.render ? col.render(row) : row[col.key]}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -77,7 +53,7 @@ export function DataTable<TData>({
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={table.getAllColumns().length}
+                      colSpan={columns.length}
                       className='h-24 text-center'
                     >
                       No results.
@@ -91,10 +67,10 @@ export function DataTable<TData>({
         </div>
       </div>
       <div className='flex flex-col gap-2.5'>
-        <DataTablePagination table={table} />
-        {actionBar &&
-          table.getFilteredSelectedRowModel().rows.length > 0 &&
-          actionBar}
+        {/* If you have pagination, you need to implement it manually */}
+        {data.length > 0 && (
+          <DataTablePagination pageData={pageData} pageEvent={pageEvent} />
+        )}
       </div>
     </div>
   );
