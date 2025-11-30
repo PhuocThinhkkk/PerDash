@@ -8,13 +8,14 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { columns } from '@/features/products/components/product-tables/columns';
+import { type Column } from '@/features/products/components/product-tables/columns';
 import { PageTableFilterData, PageTableOnEvent } from '@/types/data-table';
 import { DataTablePagination } from './data-table-pagination';
 
-interface DataTableProps<T> {
+interface DataTableProps<TData> {
   pageData: PageTableFilterData;
-  data: T[];
+  data: TData[];
+  columns: Column<TData>[];
   pageEvent: PageTableOnEvent;
   children?: React.ReactNode;
 }
@@ -22,6 +23,7 @@ interface DataTableProps<T> {
 export function DataTable<TData>({
   pageData,
   data,
+  columns,
   pageEvent,
   children
 }: DataTableProps<TData>) {
@@ -45,7 +47,7 @@ export function DataTable<TData>({
                     <TableRow key={rowIndex}>
                       {columns.map((col) => (
                         <TableCell key={String(col.key)}>
-                          {col.render ? col.render(row) : row[col.key]}
+                          {col.render && col.render(row)}
                         </TableCell>
                       ))}
                     </TableRow>

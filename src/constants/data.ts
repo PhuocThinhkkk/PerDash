@@ -18,6 +18,14 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'User',
+    url: '/dashboard/user',
+    icon: 'user',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: []
+  },
+  {
     title: 'Account',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'billing',
