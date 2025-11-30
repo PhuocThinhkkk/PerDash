@@ -14,6 +14,26 @@ const baseConfig: NextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
         port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: 'robohash.org',
+        port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+        port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
+        port: ''
       }
     ]
   },

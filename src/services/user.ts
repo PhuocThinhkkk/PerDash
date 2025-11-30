@@ -1,5 +1,5 @@
 import db from '@/lib/db';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 
 export async function getUserByClerkId(clerkId: string) {
   return db.user.findUnique({
@@ -39,4 +39,41 @@ export async function deleteUserByClerkId(clerkId: string) {
   return db.user.delete({
     where: { clerk_customer_id: clerkId }
   });
+}
+
+export async function getTotalUsersNumber(): Promise<number> {
+  return db.user.count();
+}
+
+export type FilterUserType = {
+  page?: number;
+  pageSize?: number;
+};
+
+export type UserWithPayment = Prisma.UserGetPayload<{
+  include: {
+    payments: true;
+  };
+}>;
+
+export async function getUsersByFilter(
+  filter: FilterUserType
+): Promise<UserWithPayment[]> {
+  const page = filter.page ? filter.page : 1;
+  const pageSize = filter.pageSize ? filter.pageSize : 10;
+  const users = await db.user.findMany({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    where: {
+      name: {
+        contains: '', // or equals
+        mode: 'insensitive'
+      }
+    },
+    include: {
+      payments: true
+    },
+    orderBy: { id: 'asc' }
+  });
+  return users;
 }
