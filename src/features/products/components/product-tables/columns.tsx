@@ -60,7 +60,7 @@ export const columns: Column<ProductWithCategory>[] = [
       const price = row.skus?.[0]?.price ?? 'N/A';
       return (
         <Badge variant='outline' className='border-none capitalize'>
-          {price}
+          {price.toFixed(2)}
           <DollarSign />
         </Badge>
       );

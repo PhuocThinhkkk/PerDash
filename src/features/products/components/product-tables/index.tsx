@@ -2,20 +2,23 @@
 
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import { columns } from '@/features/products/components/product-tables/columns'; // your new column type
+import { Column } from '@/features/products/components/product-tables/columns'; // your new column type
 import { PageTableFilterData, PageTableOnEvent } from '@/types/data-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useSearchParams, useRouter } from 'next/navigation';
+
 interface ProductTableParams<TData> {
   data: TData[];
   totalItems: number;
   pageData: PageTableFilterData;
+  columns: Column<TData>[];
 }
 
 export function ProductTable<TData>({
   data,
   totalItems,
-  pageData
+  pageData,
+  columns
 }: ProductTableParams<TData>) {
   const [pageSize] = useQueryState('pageSize', parseAsInteger.withDefault(10));
   const router = useRouter();
@@ -40,7 +43,12 @@ export function ProductTable<TData>({
   const pageCount = Math.ceil(totalItems / pageSize);
 
   return (
-    <DataTable pageData={pageData} data={data} pageEvent={pageEvent}>
+    <DataTable<TData>
+      pageData={pageData}
+      data={data}
+      pageEvent={pageEvent}
+      columns={columns}
+    >
       <DataTableToolbar columns={columns} />
     </DataTable>
   );

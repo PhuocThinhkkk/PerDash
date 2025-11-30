@@ -2,9 +2,11 @@ import { searchParamsCache } from '@/lib/searchparams';
 import { ProductTable } from './product-tables';
 import {
   getProductsByFilter,
-  getTotalProductsNumber
+  getTotalProductsNumber,
+  ProductWithCategory
 } from '@/services/product';
 import { PageTableFilterData } from '@/types/data-table';
+import { columns } from './product-tables/columns';
 
 type ProductListingPage = {};
 
@@ -36,6 +38,11 @@ export default async function ProductListingPage({}: ProductListingPage) {
   };
 
   return (
-    <ProductTable data={data} totalItems={totalProducts} pageData={pageData} />
+    <ProductTable<ProductWithCategory>
+      data={data}
+      totalItems={totalProducts}
+      pageData={pageData}
+      columns={columns}
+    />
   );
 }
