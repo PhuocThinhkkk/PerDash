@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { SignUp as ClerkSignUpForm } from '@clerk/nextjs';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -21,12 +22,20 @@ export default function SignUpViewPage() {
       >
         Sign Up
       </Link>
-      <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
-        <div className='absolute inset-0 bg-zinc-900' />
-        <div className='relative z-20 mt-auto'>
+      <div className='relative hidden h-full flex-col bg-zinc-900 p-10 text-white lg:flex dark:border-r'>
+        <div className='flex flex-1 items-center justify-center'>
+          <Image
+            src={'/images/sign-up.png'}
+            className=''
+            alt='sign in image'
+            width={500}
+            height={500}
+          />
+        </div>
+        <div className='relative z-20'>
           <blockquote className='space-y-2'>
             <p className='text-lg'>
-
+              Create your account with email or using Google.
             </p>
           </blockquote>
         </div>

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { SignIn as ClerkSignInForm } from '@clerk/nextjs';
 import Link from 'next/link';
 import SaveUserToDB from '@/components/save-user-to-db';
+import Image from 'next/image';
 
 export default function SignInViewPage() {
   return (
@@ -17,11 +18,19 @@ export default function SignInViewPage() {
       >
         Login
       </Link>
-      <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
-        <div className='absolute inset-0 bg-zinc-900' />
-        <div className='relative z-20 mt-auto'>
+      <div className='relative hidden h-full flex-col bg-zinc-900 p-10 text-white lg:flex dark:border-r'>
+        <div className='flex flex-1 items-center justify-center'>
+          <Image
+            src={'/images/sign-in.png'}
+            className=''
+            alt='sign in image'
+            width={500}
+            height={500}
+          />
+        </div>
+        <div className='relative z-20'>
           <blockquote className='space-y-2'>
-            <p className='text-lg'></p>
+            <p className='text-lg'>Pls sign in to continue.</p>
           </blockquote>
         </div>
       </div>
