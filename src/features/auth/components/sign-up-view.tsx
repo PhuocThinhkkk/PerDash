@@ -2,6 +2,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SignUp as ClerkSignUpForm } from '@clerk/nextjs';
 import { Metadata } from 'next';
+import SaveUserToDB from '@/components/save-user-to-db';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -49,6 +50,7 @@ export default function SignUpViewPage() {
           />
         </div>
       </div>
+      <SaveUserToDB />
     </div>
   );
 }

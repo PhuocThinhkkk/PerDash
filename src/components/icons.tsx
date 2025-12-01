@@ -1,5 +1,6 @@
 import {
   IconAlertTriangle,
+  IconUserHexagon,
   IconArrowRight,
   IconCheck,
   IconChevronLeft,
@@ -64,6 +65,7 @@ export const Icons = {
   sun: IconSun,
   moon: IconMoon,
   laptop: IconDeviceLaptop,
+  profile: IconUserHexagon,
   github: IconBrandGithub,
   twitter: IconBrandTwitter,
   check: IconCheck
