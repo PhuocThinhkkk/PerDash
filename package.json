@@ -11,7 +11,9 @@
     "lint:strict": "eslint --max-warnings=0 src",
     "format": "prettier --write .",
     "format:check": "prettier -c -w .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:update-missing-role": "ts-node scripts/update-all-user-role.ts",
+    "db:set-role": "ts-node scripts/set-user-role.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

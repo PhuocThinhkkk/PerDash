@@ -1,5 +1,6 @@
 import db from '@/lib/db';
 import { Prisma, User } from '@prisma/client';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export async function getUserByClerkId(clerkId: string) {
   return db.user.findUnique({
@@ -14,6 +15,28 @@ export async function getUserByClerkId(clerkId: string) {
   });
 }
 
+export async function getUserFromClerk(clerkId: string) {
+  const client = await clerkClient();
+  return client.users.getUser(clerkId);
+}
+
+export async function getAllUsers() {
+  return db.user.findMany();
+}
+
+export async function updateUserRole(
+  userClerkId: string,
+  role: 'USER' | 'ADMIN'
+) {
+  const client = await clerkClient();
+
+  await client.users.updateUser(userClerkId, {
+    publicMetadata: {
+      role
+    }
+  });
+}
+
 export async function createUserByClerkId(data: Prisma.UserCreateInput) {
   return db.user.create({ data });
 }
@@ -23,7 +46,6 @@ export async function updateUserByClerkId(
   data: Partial<{
     email: string;
     name: string;
-    role: 'USER' | 'ADMIN';
     stripe_customer_id: string;
     phone_number: string;
     avatar_url: string;
