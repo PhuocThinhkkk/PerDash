@@ -21,7 +21,6 @@ model User {
   auth_provider AuthProvider[]
   clerk_customer_id String? @unique
   name      String?
-  role      Role     @default(USER)
   stripe_customer_id String?
   phone_number String?
   avatar_url String?
@@ -134,10 +133,6 @@ enum AuthProvider {
   EMAIL
 }
 
-enum Role {
-  USER
-  ADMIN
-}
 
 enum PaymentStatus {
   PENDING
