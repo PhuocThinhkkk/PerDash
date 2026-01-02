@@ -10,16 +10,13 @@ export async function PATCH(req: NextRequest) {
     const userClerkId = await getUserIdInToken();
     const admin = await isAdmin(userClerkId);
     if (!admin) {
-      return NextResponse.json({ message: 'not an admin' }, { status: 400 });
+      return NextResponse.json({ message: 'not an admin' }, { status: 403 });
     }
     const body = await req.json();
-    const { size_attribute, color_attribute, price } = body;
+    const { size_attribute, color_attribute, price } = body.data;
 
     if (!body.data) {
-      return NextResponse.json(
-        { message: 'Missing id or data' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Missing data' }, { status: 400 });
     }
     const { searchParams } = new URL(req.url);
     const skusId = Number(searchParams.get('id'));
@@ -30,7 +27,10 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ message: skus }, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ message: 'shit server' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -46,7 +46,7 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = Number(searchParams.get('id'));
 
-    if (!id)
+    if (!searchParams.get('id') || isNaN(id))
       return NextResponse.json({ message: 'Missing id' }, { status: 400 });
 
     await deleteSku(id);
@@ -54,6 +54,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ message: 'skus deleted' }, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ message: 'shit server' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

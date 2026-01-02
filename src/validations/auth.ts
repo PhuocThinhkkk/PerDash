@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/dist/types/server';
+import { auth } from '@clerk/nextjs/server';
 
 export async function getUserIdInToken() {
   const { userId } = await auth();

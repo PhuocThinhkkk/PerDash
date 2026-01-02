@@ -12,24 +12,24 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ message: 'not an admin' }, { status: 400 });
     }
     const body = await req.json();
-    const { name, description } = body;
 
     if (!body.data) {
-      return NextResponse.json(
-        { message: 'Missing id or data' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Missing data' }, { status: 400 });
     }
+    const { name, description } = body.data;
     const { searchParams } = new URL(req.url);
     const productId = Number(searchParams.get('id'));
-    if (!productId)
+    if (!productId || isNaN(productId) || productId <= 0)
       return NextResponse.json({ message: 'Missing id' }, { status: 400 });
     const data = { name, description };
     const updatedProduct = await updateProductTyped(productId, data);
-    return NextResponse.json({ message: updatedProduct }, { status: 200 });
+    return NextResponse.json({ product: updatedProduct }, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ message: 'shit server' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -45,14 +45,17 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = Number(searchParams.get('id'));
 
-    if (!id)
+    if (!id || isNaN(id) || id <= 0)
       return NextResponse.json({ message: 'Missing id' }, { status: 400 });
 
     await deleteProductTyped(id);
 
-    return NextResponse.json({ message: 'User deleted' }, { status: 200 });
+    return NextResponse.json({ message: 'Product deleted' }, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ message: 'shit server' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
