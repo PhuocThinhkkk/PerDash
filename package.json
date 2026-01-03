@@ -15,7 +15,7 @@
     "db:update-missing-role": "tsx scripts/update-all-user-role.ts",
     "db:set-role": "tsx scripts/set-user-role.ts",
     "migrate:create": "npx prisma migrate dev --name new_migration --create-only",
-    "migrate:push": "npx prisma migrate dev"
+    "migrate:apply": "npx prisma migrate dev"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
