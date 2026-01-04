@@ -13,7 +13,7 @@ export async function uploadImageToS3Bucket(
 
   await s3.send(
     new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
+      Bucket: bucket,
       Key: key,
       Body: file,
       ContentType: contentType

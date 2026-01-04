@@ -11,10 +11,15 @@ export async function POST(
 ) {
   try {
     const userId = params.userId;
-    const userClerkId = await getUserIdInToken();
+    let userClerkId: string;
+    try {
+      userClerkId = await getUserIdInToken();
+    } catch {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const admin = await isAdmin(userClerkId);
     if (!admin && userId !== userClerkId) {
-      return NextResponse.json({ message: 'no authorize' }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const formData = await req.formData();
     const file = formData.get('file') as File | null;

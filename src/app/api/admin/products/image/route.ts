@@ -24,6 +24,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No productId' }, { status: 400 });
     }
     const productId = parseInt(productIdStr);
+    if (Number.isNaN(productId)) {
+      return NextResponse.json({ error: 'Invalid productId' }, { status: 400 });
+    }
 
     imageMetaSchema.parse({
       type: file.type,

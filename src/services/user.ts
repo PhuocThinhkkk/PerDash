@@ -15,6 +15,12 @@ export async function getUserByClerkId(clerkId: string) {
   });
 }
 
+export async function getUserById(id: number) {
+  return db.user.findUnique({
+    where: { id: id }
+  });
+}
+
 export async function isAdmin(userClerkId: string) {
   const client = await clerkClient();
   const user = await client.users.getUser(userClerkId);
@@ -100,7 +106,7 @@ export type UserWithPaymentAndRole = Prisma.UserGetPayload<{
 }> &
   RoleField;
 
-type RoleField = {
+export type RoleField = {
   role: 'USER' | 'ADMIN';
 };
 
