@@ -1,5 +1,6 @@
 import { getUserRoleInToken } from '@/services/auth/auth.services';
 import { isAdmin } from '@/services/auth/auth.services';
+import { changeFromUserIdToClerk } from '@/services/user/user.services';
 import { auth } from '@clerk/nextjs/server';
 
 export async function requirePermissionToUpdateUser(updatedUserId: string) {
@@ -8,7 +9,11 @@ export async function requirePermissionToUpdateUser(updatedUserId: string) {
     return true;
   }
   const userAuthId = (await auth()).userId;
-  const isValid = updatedUserId === userAuthId;
+  if (!userAuthId) {
+    throw new Error('UNAUTHORIZED');
+  }
+  const userDbId = await changeFromUserIdToClerk(userAuthId);
+  const isValid = updatedUserId === userDbId;
   if (!isValid) throw new Error('FORBIDDEN');
   return true;
 }

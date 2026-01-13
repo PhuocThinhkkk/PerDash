@@ -8,7 +8,6 @@ export function handleError(err: Error): Response {
   if (err.message === 'FORBIDDEN') {
     return NextResponse.json({ error: err.message }, { status: 403 });
   }
-  }
 
   if (!(err instanceof Error)) {
     console.log('Some unexpected type of error in runtime!');
