@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 import { uploadImageToS3Bucket } from '@/services/upload-file';
 import { imageMetaSchema } from '@/validations/image';
-import { getUserIdInToken } from '@/validations/auth';
+import { getUserIdInToken } from '@/services/auth/auth.services';
 import {
   changeFromUserIdToClerk,
   isAdmin,

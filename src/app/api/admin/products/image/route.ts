@@ -3,8 +3,8 @@ import sharp from 'sharp';
 import { uploadImageToS3Bucket } from '@/services/upload-file';
 import { imageMetaSchema } from '@/validations/image';
 import { updateProductTyped } from '@/services/product';
-import { getUserIdInToken } from '@/validations/auth';
 import { isAdmin } from '@/services/user/user.services';
+import { getUserIdInToken } from '@/services/auth/auth.services';
 
 export async function POST(req: Request) {
   try {

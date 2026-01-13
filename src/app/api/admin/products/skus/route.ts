@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAdmin } from '@/services/user/user.services';
-import { getUserIdInToken } from '@/validations/auth';
+import { getUserIdInToken } from '@/services/auth/auth.services';
 import { updateSkuTyped } from '@/services/product';
 import { deleteSku } from '@/services/skus';
 

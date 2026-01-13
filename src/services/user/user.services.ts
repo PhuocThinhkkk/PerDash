@@ -1,8 +1,9 @@
 import db from '@/lib/db';
 import { Prisma, User } from '@prisma/client';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { UserUpdateIntent } from './user.update.builder';
 import { UserDBWithRole } from './user.types';
+import { Role } from '@/types/roles';
 
 export async function getUserByClerkId(clerkId: string) {
   return db.user.findUnique({
@@ -33,7 +34,7 @@ export async function getUserRoleFromClerk(userClerkId: string) {
   const client = await clerkClient();
   const user = await client.users.getUser(userClerkId);
   const role = user.publicMetadata.role;
-  return role as RoleField['role'];
+  return role as Role;
 }
 
 export async function isAdmin(userClerkId: string) {
@@ -61,10 +62,7 @@ export async function getAllUsers(options?: { skip?: number; take?: number }) {
   });
 }
 
-export async function updateUserRole(
-  userClerkId: string,
-  role: 'USER' | 'ADMIN'
-) {
+export async function updateUserRole(userClerkId: string, role: Role) {
   const client = await clerkClient();
 
   await client.users.updateUser(userClerkId, {
@@ -123,12 +121,8 @@ export type UserWithPaymentAndRole = Prisma.UserGetPayload<{
   RoleField;
 
 export type RoleField = {
-  role: 'USER' | 'ADMIN';
+  role: Role;
 };
-
-export function isValidRole(role: string | null) {
-  return role === 'USER' || role === 'ADMIN';
-}
 
 export async function getUsersWithRoleAndPaymentByFilter(
   filter: FilterUserType
@@ -159,13 +153,10 @@ export async function getUsersWithRoleAndPaymentByFilter(
     userId: clerkUserIds
   });
 
-  const roleMap = new Map<string, 'USER' | 'ADMIN'>();
+  const roleMap = new Map<string, Role>();
 
   clerkUsers.data.forEach((user) => {
-    roleMap.set(
-      user.id,
-      (user.publicMetadata.role as 'USER' | 'ADMIN') ?? 'USER'
-    );
+    roleMap.set(user.id, (user.publicMetadata.role as Role) ?? 'USER');
   });
 
   return users.map((user) => ({

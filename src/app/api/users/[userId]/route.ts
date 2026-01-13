@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getUserIdInToken } from '@/validations/auth';
+import { getUserIdInToken } from '@/services/auth/auth.services';
 import {
   changeFromUserIdToClerk,
   executeUserUpdate,
-  isAdmin,
-  isValidRole
+  isAdmin
 } from '@/services/user/user.services';
+import { isValidRole } from '@/types/roles';
 import { UserUpdateBuilder } from '@/services/user/user.update.builder';
 
 export async function PATCH(
