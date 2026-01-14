@@ -6,6 +6,27 @@ export type CreateProductWithSkusInput = {
   skus: Omit<Prisma.ProductsSkusCreateManyInput, 'productId'>[];
 };
 
+export type ProductWithSkus = Prisma.ProductGetPayload<{
+  include: {
+    skus: true;
+  };
+}>;
+
+export async function getProductWithSkusById(
+  productId: string
+): Promise<ProductWithSkus | null> {
+  const id = parseInt(productId);
+  const product = await db.product.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      skus: true
+    }
+  });
+  return product;
+}
+
 export async function createProductWithSkusTyped(
   data: CreateProductWithSkusInput
 ): Promise<Product & { skus: { id: number }[] }> {

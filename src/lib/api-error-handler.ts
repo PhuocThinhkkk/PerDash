@@ -13,6 +13,8 @@ export function handleError(err: Error): Response {
     console.log('Some unexpected type of error in runtime!');
   }
 
+  console.error(err);
+
   return NextResponse.json(
     { message: 'Internal Server Error' },
     { status: 500 }

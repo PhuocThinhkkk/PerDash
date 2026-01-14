@@ -23,7 +23,6 @@ export async function PATCH(req: NextRequest) {
     const updatedProduct = await updateProductTyped(productId, data);
     return NextResponse.json({ product: updatedProduct }, { status: 200 });
   } catch (e: any) {
-    console.error(e);
     return handleError(e);
   }
 }
@@ -43,7 +42,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ message: 'Product deleted' }, { status: 200 });
   } catch (e: any) {
-    console.error(e);
     return handleError(e);
   }
 }

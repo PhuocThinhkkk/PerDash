@@ -1,143 +1,184 @@
 'use client';
 
-import { FormFileUpload } from '@/components/forms/form-file-upload';
-import { FormInput } from '@/components/forms/form-input';
-import { FormSelect } from '@/components/forms/form-select';
-import { FormTextarea } from '@/components/forms/form-textarea';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { toast } from 'sonner';
 
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-];
+import { FormInput } from '@/components/forms/form-input';
+import { FormSelect } from '@/components/forms/form-select';
+import { FormTextarea } from '@/components/forms/form-textarea';
+import { SkusForm } from '@/features/products/components/skus-form';
 
-const formSchema = z.object({
-  image: z
-    .any()
-    .refine((files) => files?.length == 1, 'Image is required.')
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max file size is 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      '.jpg, .jpeg, .png and .webp files are accepted.'
-    ),
-  name: z.string().min(2, {
-    message: 'Product name must be at least 2 characters.'
-  }),
-  category: z.string(),
-  price: z.number(),
-  description: z.string().min(10, {
-    message: 'Description must be at least 10 characters.'
-  })
-});
+import {
+  productFormSchema,
+  type FormValues
+} from '@/features/products/utils/validation-schema-product';
+import Image from 'next/image';
 
 export default function ProductForm({
   initialData,
   pageTitle
 }: {
-  initialData: Product | null;
+  initialData: any | null;
   pageTitle: string;
 }) {
-  const defaultValues = {
-    name: initialData?.name || '',
-    category: initialData?.category || '',
-    price: initialData?.price || undefined,
-    description: initialData?.description || ''
-  };
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: defaultValues
+  const [categories, setCategories] = useState<any[]>([]);
+  const [preview, setPreview] = useState<string | null>(
+    initialData?.photo_url ?? null
+  );
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      name: initialData?.name ?? '',
+      description: initialData?.description ?? '',
+      categoryId: initialData?.categoryId ?? undefined,
+      skus:
+        initialData?.skus?.map((s: any) => ({
+          color_attribute: s.color_attribute,
+          size_attribute: s.size_attribute,
+          price: s.price
+        })) ?? []
+    }
   });
 
-  const router = useRouter();
+  const skusFieldArray = useFieldArray({
+    control: form.control,
+    name: 'skus'
+  });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Form submission logic would be implemented here
-    console.log(values);
-    router.push('/dashboard/product');
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/categories');
+        setCategories(await res.json());
+      } catch {
+        toast.error('Failed to load categories');
+      }
+    })();
+  }, []);
+
+  function handleFileChange(file: File) {
+    form.setValue('image', file, { shouldValidate: true });
+    const url = URL.createObjectURL(file);
+    setPreview(url);
   }
 
+  function removeImage() {
+    form.setValue('image', undefined);
+    setPreview(initialData?.photo_url ?? null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function onSubmit(values: FormValues) {
+    try {
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('description', values.description ?? '');
+      formData.append('categoryId', String(values.categoryId));
+      formData.append('skus', JSON.stringify(values.skus));
+
+      if (values.image) {
+        formData.append('image', values.image);
+      }
+
+      await new Promise((res) => setTimeout(res, 1000));
+
+      toast.success('Product saved');
+      router.push('/dashboard/product');
+    } catch {
+      toast.error('Save failed');
+    }
+  }
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <CardTitle className='text-2xl font-bold'>{pageTitle}</CardTitle>
       </CardHeader>
+
       <CardContent>
         <Form
           form={form}
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          <FormFileUpload
-            control={form.control}
-            name='image'
-            label='Product Image'
-            description='Upload a product image'
-            config={{
-              maxSize: 5 * 1024 * 1024,
-              maxFiles: 4
-            }}
-          />
+          <div className='space-y-2'>
+            <label className='font-medium'>Product Image</label>
+
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/*'
+              className='hidden'
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  handleFileChange(e.target.files[0]);
+                }
+              }}
+            />
+
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className='hover:bg-muted mx-auto flex h-110 w-300 cursor-pointer items-center justify-center rounded-lg border border-dashed'
+            >
+              {preview ? (
+                <Image
+                  src={preview}
+                  alt='place holder image'
+                  className='h-full w-full rounded-lg object-contain'
+                  width={500}
+                  height={500}
+                />
+              ) : (
+                <span className='text-muted-foreground'>
+                  Click to upload image
+                </span>
+              )}
+            </div>
+
+            {form.formState.errors.image && (
+              <p className='text-destructive text-sm'>
+                {`${form.formState.errors.image.message}`}
+              </p>
+            )}
+
+            {preview && preview !== initialData.photo_url && (
+              <Button
+                type='button'
+                variant='destructive'
+                size='sm'
+                onClick={removeImage}
+              >
+                Remove image
+              </Button>
+            )}
+          </div>
 
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormInput
               control={form.control}
               name='name'
               label='Product Name'
-              placeholder='Enter product name'
               required
             />
-
             <FormSelect
               control={form.control}
-              name='category'
+              name='categoryId'
               label='Category'
-              placeholder='Select category'
               required
-              options={[
-                {
-                  label: 'Beauty Products',
-                  value: 'beauty'
-                },
-                {
-                  label: 'Electronics',
-                  value: 'electronics'
-                },
-                {
-                  label: 'Home & Garden',
-                  value: 'home'
-                },
-                {
-                  label: 'Sports & Outdoors',
-                  value: 'sports'
-                }
-              ]}
-            />
-
-            <FormInput
-              control={form.control}
-              name='price'
-              label='Price'
-              placeholder='Enter price'
-              required
-              type='number'
-              min={0}
-              step='0.01'
+              options={categories.map((c) => ({
+                label: c.name,
+                value: String(c.id)
+              }))}
             />
           </div>
 
@@ -145,16 +186,11 @@ export default function ProductForm({
             control={form.control}
             name='description'
             label='Description'
-            placeholder='Enter product description'
-            required
-            config={{
-              maxLength: 500,
-              showCharCount: true,
-              rows: 4
-            }}
           />
 
-          <Button type='submit'>Add Product</Button>
+          <SkusForm form={form} fieldArray={skusFieldArray} />
+
+          <Button type='submit'>Save Product</Button>
         </Form>
       </CardContent>
     </Card>
