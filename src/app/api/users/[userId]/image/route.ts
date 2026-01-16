@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import sharp from 'sharp';
 import { uploadImageToS3Bucket } from '@/services/upload-file';
 import { imageMetaSchema } from '@/validations/image';

@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import db from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { AuthProvider } from '@prisma/client';
 import { updateUserRole } from '@/services/user/user.services';
 import { ROLES } from '@/types/roles';

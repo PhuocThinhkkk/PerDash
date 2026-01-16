@@ -87,6 +87,27 @@ export default function ProductForm({
     setPreview(initialData?.photo_url ?? null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
+  async function uploadImage(file: File) {
+    if (!initialData) {
+      console.log('suck');
+      return;
+    }
+    if (!file) {
+      console.log('suck file');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`/api/admin/products/${initialData.id}/image`, {
+      method: 'PATCH',
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Avatar upload failed');
+    }
+  }
 
   async function updateNormalFieldProductAndSkus(values: FormValues) {
     console.log('update normal field');
@@ -114,7 +135,10 @@ export default function ProductForm({
   async function onSubmit(values: FormValues) {
     try {
       await updateNormalFieldProductAndSkus(values);
-      console.log(values.image);
+      console.log('image: ', values.image);
+      if (values.image) {
+        await uploadImage(values.image);
+      }
       toast.success('Product saved');
       router.push('/dashboard/product');
     } catch (e: any) {

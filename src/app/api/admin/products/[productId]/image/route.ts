@@ -6,28 +6,23 @@ import { updateProductTyped } from '@/services/product';
 import { requireAdmin } from '@/validations/admin';
 import { handleError } from '@/lib/api-error-handler';
 
-export async function PUT(
+export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     await requireAdmin();
 
-    const productId = parseInt((await params).productId);
-    if (Number.isNaN(productId)) {
+    const id = parseInt((await params).productId);
+    if (Number.isNaN(id)) {
       return NextResponse.json({ error: 'Invalid productId' }, { status: 400 });
     }
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const productIdStr = formData.get('productId') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file' }, { status: 400 });
     }
-    if (!productIdStr) {
-      return NextResponse.json({ error: 'No productId' }, { status: 400 });
-    }
-
     imageMetaSchema.parse({
       type: file.type,
       size: file.size
@@ -40,7 +35,7 @@ export async function PUT(
       .webp({ quality: 85 })
       .toBuffer();
 
-    const key = `upload/product/${productId}/${crypto.randomUUID()}.webp`;
+    const key = `upload/product/${id}/${crypto.randomUUID()}.webp`;
 
     await uploadImageToS3Bucket(processed, key, 'image/webp');
 
@@ -49,7 +44,7 @@ export async function PUT(
       photo_url: url
     };
 
-    await updateProductTyped(productId, data);
+    await updateProductTyped(id, data);
 
     return NextResponse.json({ url });
   } catch (err: any) {
