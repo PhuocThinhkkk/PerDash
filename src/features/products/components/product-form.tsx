@@ -70,7 +70,14 @@ export default function ProductForm({
     (async () => {
       try {
         const res = await fetch('/api/categories');
-        setCategories(await res.json());
+        if (!res.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid categories payload');
+        }
+        setCategories(data);
       } catch {
         toast.error('Failed to load categories');
       }
