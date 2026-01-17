@@ -29,7 +29,7 @@ export async function PATCH(
     const { name, description, categoryId, skus } = dataRaw;
     const data = { name, description, categoryId, skus };
     await updateProductWithSkus(id, data);
-    return NextResponse.json({ message: 'success' }, { status: 200 });
+    return NextResponse.json({ product: { id: id } }, { status: 200 });
   } catch (e: any) {
     return handleError(e);
   }

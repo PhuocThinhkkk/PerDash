@@ -114,11 +114,12 @@ export async function getUserMetrics(): Promise<MetricResponse> {
   // Peak day
   const peakValue = Math.max(...dailyUsers);
   const peakIndex = dailyUsers.indexOf(peakValue);
-  const peakDay = format(subDays(today, 6 - peakIndex), 'MMM dd');
+  const peakDay =
+    change > 0 ? format(subDays(today, 6 - peakIndex), 'MMM dd') : undefined;
 
   return {
-    title: 'Users',
-    value: totalUsers,
+    title: 'New users',
+    value: currentUsers,
     change: `${Math.abs(change).toFixed(1)}%`,
     changeType,
     peakDay,

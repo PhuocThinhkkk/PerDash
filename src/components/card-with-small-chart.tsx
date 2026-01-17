@@ -1,13 +1,4 @@
 'use client';
-
-import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { MetricResponse } from '@/types/response';
 interface MetricProps {
   data: MetricResponse;
@@ -26,20 +17,24 @@ export function MetricCard({ data }: MetricProps) {
   const maxValue = Math.max(...sparklineData);
   const normalizedData = sparklineData.map((v) => (v / maxValue) * 100);
 
+  const peakMsg = peakDay ? 'Peak: ' + peakDay : 'There was no peak day.';
+
   return (
-    <div className='bg-card border-border w-full rounded-lg border p-4'>
+    <div className='bg-card border-border flex w-full flex-col rounded-lg border p-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-foreground text-sm font-medium'>{title}</h3>
+        <h3 className='text-foreground text-lg font-medium'>{title}</h3>
+
+        <span className='bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs'>
+          Last 7 days
+        </span>
       </div>
 
-      <div className='flex items-end justify-between'>
+      <div className='flex flex-1 items-end justify-between'>
         <div>
           <div className='text-foreground mb-2 text-4xl font-bold'>{value}</div>
-          {peakDay && (
-            <div className='bg-secondary text-secondary-foreground inline-block rounded px-2 py-1 text-xs font-medium'>
-              Peak: {peakDay}
-            </div>
-          )}
+          <div className='bg-secondary text-secondary-foreground inline-block rounded px-2 py-1 text-xs font-medium'>
+            {peakMsg}
+          </div>
         </div>
 
         <div className='flex flex-col items-end gap-2'>
