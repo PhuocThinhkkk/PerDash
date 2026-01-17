@@ -202,3 +202,13 @@ export async function changeFromUserIdToClerk(id: string) {
   }
   return user.clerk_customer_id;
 }
+
+export async function changeFromCleckToUserId(clerkId: string) {
+  const user = await db.user.findFirst({
+    where: { clerk_customer_id: clerkId }
+  });
+  if (!user) {
+    throw new Error(`No user with this clerk Id: ${clerkId}`);
+  }
+  return user.id;
+}

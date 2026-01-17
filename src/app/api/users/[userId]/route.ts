@@ -26,7 +26,7 @@ export async function PATCH(
     if (!name && !role) {
       return NextResponse.json({ error: 'invalid field!' }, { status: 400 });
     }
-    if (!isValidRole(role)) {
+    if (role && !isValidRole(role)) {
       return NextResponse.json({ error: 'invalid role!' }, { status: 400 });
     }
 
