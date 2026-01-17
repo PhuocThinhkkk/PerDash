@@ -172,6 +172,9 @@ export async function executeUserUpdate(
   userClerkId: string,
   intent: UserUpdateIntent
 ) {
+  const expectedRole = intent.clerk?.role;
+  const expectedDbData = intent.db;
+
   try {
     if (intent.clerk?.role) {
       await updateUserRole(userClerkId, intent.clerk.role);
@@ -179,11 +182,61 @@ export async function executeUserUpdate(
     if (intent.db) {
       await updateUserByClerkId(userClerkId, intent.db);
     }
-  } catch (error) {
-    // Log the error with context about which update failed
-    console.error(`Failed to execute user update for ${userClerkId}:`, error);
 
-    // Re-throw to allow caller to handle the error
+    const validationErrors: string[] = [];
+
+    if (expectedRole) {
+      try {
+        const actualRole = await getUserRoleFromClerk(userClerkId);
+        if (actualRole !== expectedRole) {
+          validationErrors.push(
+            `Role mismatch: expected "${expectedRole}" but Clerk has "${actualRole}"`
+          );
+        }
+      } catch (error) {
+        validationErrors.push(
+          `Failed to verify Clerk role: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    }
+
+    if (expectedDbData) {
+      try {
+        const actualUser = await getUserByClerkId(userClerkId);
+
+        if (!actualUser) {
+          validationErrors.push('User not found in database after update');
+        } else {
+          // Check each field trying to update
+          if (expectedDbData.name && actualUser.name !== expectedDbData.name) {
+            validationErrors.push(
+              `Name mismatch: expected "${expectedDbData.name}" but DB has "${actualUser.name}"`
+            );
+          }
+          // Add more field validations as needed
+        }
+      } catch (error) {
+        validationErrors.push(
+          `Failed to verify DB data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      console.error(
+        `⚠️  User update validation failed for ${userClerkId}:`,
+        validationErrors
+      );
+
+      // Throw error to alert caller about inconsistency for now
+      throw new Error(
+        `User update completed but validation detected inconsistencies: ${validationErrors.join('; ')}`
+      );
+    }
+
+    console.log(`User update validated successfully for ${userClerkId}`);
+  } catch (error) {
+    console.error(`Failed to execute user update for ${userClerkId}:`, error);
     throw new Error(
       `User update failed for ${userClerkId}. System may be in inconsistent state. ` +
         `Please verify Clerk and database records.`,
