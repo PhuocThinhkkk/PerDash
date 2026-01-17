@@ -1,9 +1,19 @@
 import db from '@/lib/db';
 import { Prisma, Product } from '@prisma/client';
 
-export type CreateProductWithSkusInput = {
-  product: Prisma.ProductCreateInput;
-  skus: Omit<Prisma.ProductsSkusCreateManyInput, 'productId'>[];
+// DTO (hand-written)
+type CreateProductWithSkusInput = {
+  product: {
+    name: string;
+    description?: string;
+    photo_url?: string | null;
+    categoryId: number;
+  };
+  skus: {
+    price: number;
+    size_attribute: string;
+    color_attribute: string;
+  }[];
 };
 
 export type ProductWithSkus = Prisma.ProductGetPayload<{
@@ -31,14 +41,26 @@ export async function createProductWithSkusTyped(
   data: CreateProductWithSkusInput
 ): Promise<Product & { skus: { id: number }[] }> {
   return db.$transaction(async (tx) => {
+    const { categoryId, ...productData } = data.product;
+
     const product = await tx.product.create({
-      data: data.product
+      data: {
+        ...productData,
+        category: {
+          connect: { id: categoryId }
+        }
+      }
     });
 
     const skuData: Prisma.ProductsSkusCreateManyInput[] = data.skus.map(
-      (sku) => ({
-        ...sku,
-        productId: product.id
+      (field) => ({
+        ...field,
+        productId: product.id,
+        sku: generateSku({
+          productId: product.id,
+          color: field.color_attribute,
+          size: field.size_attribute
+        })
       })
     );
 
