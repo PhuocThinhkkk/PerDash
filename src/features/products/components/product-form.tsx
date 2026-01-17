@@ -86,6 +86,10 @@ export default function ProductForm({
 
   function handleFileChange(file: File) {
     form.setValue('image', file, { shouldValidate: true });
+    // Revoke previous object URL to prevent memory leak
+    if (preview && preview !== initialData?.photo_url) {
+      URL.revokeObjectURL(preview);
+    }
     const url = URL.createObjectURL(file);
     setPreview(url);
   }
