@@ -46,9 +46,7 @@ async function main() {
   const { months } = parseArgs();
   console.log(`Seeding random payments across last ${months} months...`);
 
-  const users = await db.user.findMany({
-    where: { clerk_customer_id: { not: null } }
-  });
+  const users = await db.user.findMany();
 
   const productSkus = await db.productsSkus.findMany({
     include: { product: true }

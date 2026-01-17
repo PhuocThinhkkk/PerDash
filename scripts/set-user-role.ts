@@ -1,5 +1,9 @@
 import db from '@/lib/db';
-import { getUserByClerkId, updateUserRole } from '@/services/user';
+import {
+  getUserByClerkId,
+  updateUserRole
+} from '@/services/user/user.services';
+import { isValidRole } from '@/types/roles';
 
 const [, , userClerkId, role] = process.argv;
 
@@ -16,7 +20,7 @@ async function main() {
     process.exit(1);
   }
 
-  if (role != 'USER' && role != 'ADMIN') {
+  if (!isValidRole(role)) {
     console.error('Role must be USER or ADMIN.');
     process.exit(1);
   }

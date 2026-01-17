@@ -1,5 +1,10 @@
 import db from '@/lib/db';
-import { getAllUsers, getUserFromClerk, updateUserRole } from '@/services/user';
+import {
+  getAllUsers,
+  getUserFromClerk,
+  updateUserRole
+} from '@/services/user/user.services';
+import { ROLES } from '@/types/roles';
 
 async function main() {
   const users = await getAllUsers();
@@ -22,7 +27,7 @@ async function main() {
       if (role) {
         continue;
       }
-      await updateUserRole(userClerkId, 'USER');
+      await updateUserRole(userClerkId, ROLES.USER);
     } catch (e) {
       console.log('err with user clerk id', userClerkId);
     }

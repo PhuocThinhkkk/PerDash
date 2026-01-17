@@ -1,10 +1,11 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import db from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { AuthProvider } from '@prisma/client';
-import { updateUserRole } from '@/services/user';
+import { updateUserRole } from '@/services/user/user.services';
+import { ROLES } from '@/types/roles';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const clerkUserId = (await auth()).userId;
     if (!clerkUserId) {
@@ -78,7 +79,7 @@ export async function POST() {
         }
       });
 
-      await updateUserRole(clerkUserId, 'USER');
+      await updateUserRole(clerkUserId, ROLES.USER);
     }
 
     return NextResponse.json({ user });
@@ -88,7 +89,7 @@ export async function POST() {
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
   const clerkUser = await currentUser();
   if (!clerkUser)
     return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
@@ -104,7 +105,7 @@ export async function PATCH(req: Request) {
   return NextResponse.json({ user: updatedUser });
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   const clerkUser = await currentUser();
   if (!clerkUser)
     return NextResponse.json({ message: 'Not signed in' }, { status: 401 });

@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 import db from '@/lib/db';
 import { AuthProvider } from '@prisma/client';
-import { updateUserRole, getUserFromClerk } from '@/services/user';
+import {
+  updateUserRole,
+  getUserFromClerk
+} from '@/services/user/user.services';
+import { isValidRole, ROLES } from '@/types/roles';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   console.log('webhook come from clerk to create user');
   const payload = await req.text();
   const headerPayload = headers();
@@ -53,8 +57,8 @@ export async function POST(req: Request) {
 
       const clerkUser = await getUserFromClerk(data.id);
       const userRole = clerkUser.publicMetadata?.role;
-      if (!userRole || (userRole != 'USER' && userRole != 'ADMIN')) {
-        await updateUserRole(data.id, 'USER');
+      if (!userRole || !isValidRole(userRole)) {
+        await updateUserRole(data.id, ROLES.USER);
       }
 
       await db.user.upsert({
