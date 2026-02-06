@@ -87,10 +87,16 @@ export async function getUserMetrics(): Promise<MetricResponse> {
   });
 
   // % Change
-  const change =
-    previousUsers === 0
-      ? 100
-      : ((currentUsers - previousUsers) / previousUsers) * 100;
+  let change;
+  if (previousUsers === 0) {
+    if (currentUsers === 0) {
+      change = 0;
+    } else {
+      change = 100;
+    }
+  } else {
+    change = ((currentUsers - previousUsers) / previousUsers) * 100;
+  }
 
   const changeType = change >= 0 ? 'up' : 'down';
 
