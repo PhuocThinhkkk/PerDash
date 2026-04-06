@@ -3,7 +3,7 @@ import { Prisma, User } from '@prisma/client';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { UserUpdateIntent } from './user.update.builder';
 import { UserDBWithRole } from './user.types';
-import { isValidRole, Role } from '@/types/roles';
+import { isValidRole, Role, ROLES } from '@/types/roles';
 
 export async function getUserByClerkId(clerkId: string) {
   return db.user.findUnique({
@@ -22,10 +22,12 @@ export async function getUserById(id: number): Promise<UserDBWithRole> {
   const user = await db.user.findUnique({
     where: { id: id }
   });
+  let role: Role = ROLES.USER;
   if (!user?.clerk_customer_id) {
-    throw new Error(`User with id ${id} does not have a Clerk customer ID`);
+    console.warn(`User with id ${id} does not have a Clerk customer ID`);
+  } else {
+    role = await getUserRoleFromClerk(user?.clerk_customer_id);
   }
-  const role = await getUserRoleFromClerk(user?.clerk_customer_id);
   const u = { ...user, role };
   return u;
 }

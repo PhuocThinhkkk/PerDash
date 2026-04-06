@@ -24,7 +24,7 @@ export default async function DashboardOverview() {
       {/* Total Revenue Card */}
       <Card className='@container/card'>
         <CardHeader>
-          <CardDescription>Total Revenue in one month</CardDescription>
+          <CardDescription>Total Revenue </CardDescription>
           <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
             {revenueOverview.totalRevenue.toFixed(2)}
           </CardTitle>
@@ -58,7 +58,7 @@ export default async function DashboardOverview() {
 
       <Card className='@container/card'>
         <CardHeader>
-          <CardDescription>Total Customers in 1 month</CardDescription>
+          <CardDescription>Total Customers</CardDescription>
 
           <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
             {userOverview.totalUsers.toLocaleString()}
