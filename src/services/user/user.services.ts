@@ -23,6 +23,10 @@ export async function getUserById(id: number): Promise<UserDBWithRole> {
     where: { id: id }
   });
   let role: Role = ROLES.USER;
+  if (!user) {
+    throw new Error(`User with id ${id} not found`);
+  }
+
   if (!user?.clerk_customer_id) {
     console.warn(`User with id ${id} does not have a Clerk customer ID`);
   } else {
