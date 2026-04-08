@@ -18,6 +18,7 @@ export default async function Page(props: PageProps) {
     if (!user) {
       throw new Error('User not found.');
     }
+    console.log('user: ', user);
     return (
       <PageContainer scrollable>
         <div className='flex-1 space-y-4'>

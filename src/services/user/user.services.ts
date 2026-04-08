@@ -27,10 +27,14 @@ export async function getUserById(id: number): Promise<UserDBWithRole> {
     throw new Error(`User with id ${id} not found`);
   }
 
-  if (!user?.clerk_customer_id) {
-    console.warn(`User with id ${id} does not have a Clerk customer ID`);
-  } else {
-    role = await getUserRoleFromClerk(user?.clerk_customer_id);
+  try {
+    if (!user?.clerk_customer_id) {
+      console.warn(`User with id ${id} does not have a Clerk customer ID`);
+    } else {
+      role = await getUserRoleFromClerk(user?.clerk_customer_id);
+    }
+  } catch (e) {
+    console.warn(`User with id ${id} does not have issue with Cleck query `);
   }
   const u = { ...user, role };
   return u;
